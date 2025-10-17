@@ -20,7 +20,7 @@
 function [XB, num_evals] = explicit_RK_step(rate_func_in, t, XA, h, BT_struct)
     
     % initialize values and containers
-    s = dim(BT_struct, 1);
+    s = size(BT_struct, 1);
     k_vals = zeros(s, length(XA));
     k_vals(1, :) = rate_func_in(t, XA); % dxdt at initial point
     
