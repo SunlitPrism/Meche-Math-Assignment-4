@@ -57,6 +57,9 @@ function [t_list, X_list, h_avg, total_evals] = explicit_RK_fixed_step_integrati
 =======
     XA = X0; X_list(1, :) = XA;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -66,8 +69,11 @@ function [t_list, X_list, h_avg, total_evals] = explicit_RK_fixed_step_integrati
         t = t_list(i);
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         [XB, num_evals] = explicit_RK_step(rate_func_in, t, X_list(i,:), h, BT_struct);
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
         [XB, num_evals] = explicit_RK_step_embedded(rate_func_in, t, XA, h, BT_struct);

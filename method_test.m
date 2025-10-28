@@ -40,16 +40,22 @@ orbit_params.G = 40;
 
 % initial state
 x0 = 8; y0 = 1; 
+<<<<<<< Updated upstream
 dxdt0 = 0.1; dydt0=0;
 dxdt0 = 0; dydt0=0;
+=======
+>>>>>>> Stashed changes
 dxdt0 = 0; dydt0=0;
 V0 = [x0, y0, dxdt0, dydt0];
 
 %% Compare approx. soln to true soln for various methods
 % construct a subplot for each method 
 
+<<<<<<< Updated upstream
 clf; h_ref = 0.01; tspan = [0, 30]; 
 clf; h_ref = 0.2; tspan = [0, 30]; 
+=======
+>>>>>>> Stashed changes
 clf; h_ref = 0.2; tspan = [0, 30]; 
 t_range = linspace(tspan(1), tspan(2), ceil(diff(tspan)/h_ref)+1);
 h = diff([t_range(1), t_range(2)]);
@@ -60,6 +66,7 @@ V_list = compute_planetary_motion(t_range, V0, orbit_params);
 % anonymize func to pass as input later
 my_rate = @(t_in, V_in) gravity_rate_func(t_in, V_in, orbit_params);
 
+<<<<<<< Updated upstream
 figure(1);
 for j = 1:num_methods
 
@@ -71,6 +78,8 @@ for j = 1:num_methods
 
 end
 
+=======
+>>>>>>> Stashed changes
 subplot(2, 1, 1)
     
 % plot "true" solution
@@ -91,6 +100,7 @@ for j = 1:num_methods
 
     % plot numerical
     method_name = selected_methods(j);
+<<<<<<< Updated upstream
     plot(t_list, X_list(:,1), ".-", DisplayName=(method_name + " x")); 
     % plot(t_list, X_list(:,2), ".-", DisplayName=(method_name + " y")); 
 
@@ -104,6 +114,18 @@ end
 
 sgtitle("Comparison of Runge-Kutta methods (\Deltat=" + num2str(h) + ") to True Soln")
 
+=======
+    plot(t_range, V_list, ".-", DisplayName=method_name); 
+
+    % label graph
+    title("True Soln vs. ", method_name, " Approx.")
+    xlabel("Time"); ylabel("X(t)")
+
+end
+
+% label plot
+sgtitle("Comparison of Runge-Kutta methods (\Delta t=", h, ") to True Soln")
+>>>>>>> Stashed changes
 
 %% Local truncation error
 
