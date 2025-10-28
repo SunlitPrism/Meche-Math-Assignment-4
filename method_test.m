@@ -40,29 +40,17 @@ orbit_params.G = 40;
 
 % initial state
 x0 = 8; y0 = 1; 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 dxdt0 = 0.1; dydt0=0;
-=======
 dxdt0 = 0; dydt0=0;
->>>>>>> Stashed changes
-=======
 dxdt0 = 0; dydt0=0;
->>>>>>> Stashed changes
 V0 = [x0, y0, dxdt0, dydt0];
 
 %% Compare approx. soln to true soln for various methods
 % construct a subplot for each method 
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 clf; h_ref = 0.01; tspan = [0, 30]; 
-=======
 clf; h_ref = 0.2; tspan = [0, 30]; 
->>>>>>> Stashed changes
-=======
 clf; h_ref = 0.2; tspan = [0, 30]; 
->>>>>>> Stashed changes
 t_range = linspace(tspan(1), tspan(2), ceil(diff(tspan)/h_ref)+1);
 h = diff([t_range(1), t_range(2)]);
 
@@ -72,8 +60,6 @@ V_list = compute_planetary_motion(t_range, V0, orbit_params);
 % anonymize func to pass as input later
 my_rate = @(t_in, V_in) gravity_rate_func(t_in, V_in, orbit_params);
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 figure(1);
 for j = 1:num_methods
 
@@ -82,9 +68,9 @@ for j = 1:num_methods
     % plot "true" solution
     plot(t_range, V_list(:,1), DisplayName="True soln x"); hold on;
     % plot(t_range, V_list(:,2), DisplayName="True soln y");
-=======
-=======
->>>>>>> Stashed changes
+
+end
+
 subplot(2, 1, 1)
     
 % plot "true" solution
@@ -98,16 +84,11 @@ for j = 1:num_methods
     
     % plot "true" solution
     plot(t_range, V_list, DisplayName="True soln"); hold on;
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 
     % solve with numerical method
     [t_list, X_list, h_avg, num_evals] = explicit_RK_fixed_step_integration ...
                             (my_rate, tspan, V0, h_ref, BT_list{j});
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+
     % plot numerical
     method_name = selected_methods(j);
     plot(t_list, X_list(:,1), ".-", DisplayName=(method_name + " x")); 
@@ -118,34 +99,11 @@ for j = 1:num_methods
     title("True Soln vs. " + method_name + " Approximation")
     xlabel("Time"); ylabel("X(t)")
     legend()
-=======
-=======
->>>>>>> Stashed changes
-
-    % plot numerical
-    method_name = selected_methods(j);
-    plot(t_range, V_list, ".-", DisplayName=method_name); 
-
-    % label graph
-    title("True Soln vs. ", method_name, " Approx.")
-    xlabel("Time"); ylabel("X(t)")
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 
 end
 
-% label plot
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 sgtitle("Comparison of Runge-Kutta methods (\Deltat=" + num2str(h) + ") to True Soln")
-=======
-sgtitle("Comparison of Runge-Kutta methods (\Delta t=", h, ") to True Soln")
->>>>>>> Stashed changes
-=======
-sgtitle("Comparison of Runge-Kutta methods (\Delta t=", h, ") to True Soln")
->>>>>>> Stashed changes
+
 
 %% Local truncation error
 
