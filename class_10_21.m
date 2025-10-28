@@ -86,15 +86,7 @@ function class_10_21()
     loglog(h_ref_list, tr_error_list2, "bo", MarkerFaceColor="b")
 
     % compute fits again
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    filter_params = struct(); % define again, ymX_list(1,:) = X0';in = 10^-13, ymax_10^-6
-=======
     filter_params = struct(); % define again, ymin = 10^-13, ymax_10^-6
->>>>>>> Stashed changes
-=======
-    filter_params = struct(); % define again, ymin = 10^-13, ymax_10^-6
->>>>>>> Stashed changes
     [p1, k1] = loglog_fit(h_ref_list, tr_error_list1, filter_params);
     [p2, k2] = loglog_fit(h_ref_list, tr_error_list2, filter_params);
 
