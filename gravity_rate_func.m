@@ -16,23 +16,40 @@ function dVdt = gravity_rate_func(t, V, orbit_params)
     
     % unpack variables
     G = orbit_params.G;
+<<<<<<< Updated upstream
     m_sun = orbit_params.m_sun;
-    mp = orbit_params.m_planet;
+    % mp = orbit_params.m_planet;
 
     x = V(1); y = V(2); vx = V(3); vy = V(4);
 
-    %create r
-    r = [x;y];
-    r_mag  = norm(r);
-
-    %calculate
-    a = (-(m_sun*G)/r_mag^3)*r;
-
-    %separate variables
-    ax = a(1); ay = a(2);
+    % create r
+    r = [x; y];
+    r_mag = norm(r);
 
     % Newton's Law of Universal Gravitation
-    % m_p * (d^2r/dt^2) = F = - (m_p*m_s*G)/|r^3| * r
+    % m_p * (d^2r/dt^2) = F = -(m_p*m_s*G)/|r^3| * r
+    
+    % calculate 2nd deriv
+    a = (-(m_sun*G)/r_mag^3)*r;
+
+    % separate components
+    ax = a(1); ay = a(2);
+=======
+    ms = orbit_params.m_sun;
+    % mp = orbit_params.m_planet; % not used
+    r = [V(:,1), V(:,2)]; % [x_p, y_p], pos vector of planet
+
+    % Newton's Law of Universal Gravitation
+    % m_p * (d^2r/dt^2) = F = -(m_p*m_s*G)/|r^3| * r
+
+    % calc second deriv
+    r_norm = norm(r);
+    dr2dt2 = -(ms*G/(r_norm^3))*r;
+
+    % isolate x and y components
+    d2xdt2_p = dr2dt2(1);
+    d2ydt2_p = dr2dt2(2);
+>>>>>>> Stashed changes
 
     % construct dVdt
     dVdt = [vx; vy; ax; ay];
