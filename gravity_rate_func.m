@@ -17,6 +17,7 @@ function dVdt = gravity_rate_func(t, V, orbit_params)
     % unpack variables
     G = orbit_params.G;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     m_sun = orbit_params.m_sun;
     % mp = orbit_params.m_planet;
 
@@ -41,6 +42,14 @@ function dVdt = gravity_rate_func(t, V, orbit_params)
 
     % Newton's Law of Universal Gravitation
     % m_p * (d^2r/dt^2) = F = -(m_p*m_s*G)/|r^3| * r
+=======
+    ms = orbit_params.m_sun;
+    % mp = orbit_params.m_planet; % not used
+    r = [V(:,1), V(:,2)]; % [x_p, y_p], pos vector of planet
+
+    % Newton's Law of Universal Gravitation
+    % m_p * (d^2r/dt^2) = F = -(m_p*m_s*G)/|r^3| * r
+>>>>>>> Stashed changes
 
     % calc second deriv
     r_norm = norm(r);

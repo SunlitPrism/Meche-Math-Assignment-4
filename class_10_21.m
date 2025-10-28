@@ -87,7 +87,11 @@ function class_10_21()
 
     % compute fits again
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     filter_params = struct(); % define again, ymX_list(1,:) = X0';in = 10^-13, ymax_10^-6
+=======
+    filter_params = struct(); % define again, ymin = 10^-13, ymax_10^-6
+>>>>>>> Stashed changes
 =======
     filter_params = struct(); % define again, ymin = 10^-13, ymax_10^-6
 >>>>>>> Stashed changes
