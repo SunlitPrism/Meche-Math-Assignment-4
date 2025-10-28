@@ -53,7 +53,7 @@ function assignment_4_setup_avery_saving_backup()
     plot(t_list,X_list(:,4));
     hold off;
 
-    %Errors vs H size Calculations
+    %Errors vs H size Calculations Global
     h_ref_list = logspace(-3,-1,30);
 
     num_evals_list = [];
@@ -71,13 +71,51 @@ function assignment_4_setup_avery_saving_backup()
        num_evals_list(n) = num_evals;
     end
 
-    %Fit and Regression
+    %Fit and Regression Global
     filter_params = struct();
     filter_params.min_yval = 1e-10;
     filter_params.max_yval = 1;
     
     [p1,k1] = loglog_fit(h_avg_list,tr_error_list,filter_params);
     [p2,k2] = loglog_fit(h_avg_list,tr_error_list,filter_params);
+
+    p1 = abs(p1);
+    p2 = abs(p2);
+
+    %Plot Global Error as Function of Time
+    figure(2);
+    loglog(h_avg_list,tr_error_list,'ro','MarkerFaceColor','r') %Global as func of time
+    loglog(h_avg_list,k1*h_avg_list.^p1,'k') %Global as func of time
+
+    %Plot Global Error as Function of Evaluations
+    figure(3);
+    loglog(num_evals_list,tr_error_list,'bo','MarkerFaceColor','b') %Global as #evals
+    loglog(num_evals_list,k2*num_evals_list.^p2,'k') %Global as #evals
+
+     %Errors vs H size Calculations Local
+    n_samples = 60;
+    h_ref_list = logspace(-3,-1,n_samples);
+
+    abs_diff_list = [];
+    tr_error_list1 = [];
+    tr_error_list2 = [];
+
+    for n = 1:length(h_ref_list)
+       h_ref = h_ref_list(n);
+       V_list = compute_planetary_motion(tspan(1)+h_ref,V0,orbit_params);
+
+       [XB1,XB2,~]= explicit_RK_step_embedded(rate_func_in,tspan,V0,h_ref,BT_struct);
+       abs_diff_list(n) = norm(V_list - V0);
+        tr_error_list1(n) = norm(XB1-V_list);
+        tr_error_list2(n) = norm(XB2-V_list);
+    end
+     %Fit and Regression Local
+    filter_params = struct();
+    filter_params.min_yval = 1e-10;
+    filter_params.max_yval = 1;
+    
+    [p1,k1] = loglog_fit(h_avg_list,tr_error_list1,filter_params);
+    [p2,k2] = loglog_fit(h_avg_list,tr_error_list2,filter_params);
 
     p1 = abs(p1);
     p2 = abs(p2);
