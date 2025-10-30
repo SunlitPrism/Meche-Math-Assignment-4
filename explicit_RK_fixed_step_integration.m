@@ -46,7 +46,6 @@ function [t_list, X_list, h_avg, total_evals] = explicit_RK_fixed_step_integrati
     t_list = linspace(tspan(1), tspan(2), N);
     X_list = zeros(N, length(X0));
 
-    
     h = diff(t_list(1:2)); h_avg = h; 
     
     total_evals = 0; % counter for num times rate func is called
@@ -60,7 +59,7 @@ function [t_list, X_list, h_avg, total_evals] = explicit_RK_fixed_step_integrati
         [XB, num_evals] = explicit_RK_step(rate_func_in, t, X_list(i,:), h, BT_struct);
 
         % update and store vals
-        X_list(i+1, :) = XB(1,:);  % ONLY DOES FIRST SOLN XB1
+        X_list(i+1, :) = XB(1,:);  % Choose XB1 by default
         total_evals = total_evals + num_evals;
     end
 

@@ -95,43 +95,42 @@ h_range = logspace(-5, 1, h_len);
 X0 = compute_planetary_motion(t_ref, V0, orbit_params);
 
 % compute |X(t + h) − X(t)|
-ref_X_list = zeros(h_len, length(X0));
+ref_X_list = zeros(h_len, 1);
 for i = 1:h_len
 
     t_vals = [t_ref, t_ref + h_range(i)];
     V_list = compute_planetary_motion(t_vals, V0, orbit_params);
-    ref_X_list(i,:) = abs(diff(V_list));
+    ref_X_list(i) = abs(diff(V_list(:,1)));
 
 end
 
-hold off; figure(2);
-loglog(h_range, ref_X_list(:,1), ".", DisplayName="Ref. line"); hold on;
 
-% for each RK method compute local tr error
+% for each method compute error
+figure(2); hold on; 
 for j = 1:num_methods
 
     % get local truncation error for jth method
-    Xlist = get_local_tr_err(my_rate, X0, V0, t_ref, h_range, BT_list{j}, orbit_params);
+    [tlist, Xlist] = get_local_tr_err(my_rate, X0, t_ref, h_range, BT_list{j});
 
     % plot results
     method_name = selected_methods(j);
-    loglog(h_range, Xlist(:,1), ".", DisplayName=method_name)
+    plot(tlist, Xlist, ".", DisplayName=method_name)
 
 end
 
 % label plot
 title("Local Truncation Error for RK Methods")
-xlabel("Step size"); ylabel("Error"); 
+xlabel("Step size"); ylabel("Error"); ylim([5, 8.5])
 legend()
 
 
 
 %% Helper function to get local trunctation error list
 
-function err_list = get_local_tr_err(rate_fcn, X0, V0, t_ref, h_range, BT_struct, orbit_params)
+function err_list = get_local_tr_err(rate_fcn, X0, t_ref, h_range, BT_struct)
 
     % make container
-    err_list = zeros(length(h_range), length(X0));
+    err_list = zeros(length(h_range), 1);
 
     for i = 1:length(h_range)
 
@@ -141,7 +140,7 @@ function err_list = get_local_tr_err(rate_fcn, X0, V0, t_ref, h_range, BT_struct
         X_exact = compute_planetary_motion(t, V0, orbit_params);
         
         % store error
-        err_list(i, :) = abs(X_exact - X_approx);
+        err_list(i) = abs(X_exact - X_approx);
     end
 
 end

@@ -19,7 +19,7 @@ function dVdt = gravity_rate_func(t, V, orbit_params)
     m_sun = orbit_params.m_sun;
     
     % unpack V
-    x = V(1,:); y = V(2,:); vx = V(3,:); vy = V(4,:);
+    x = V(1); y = V(2); vx = V(3); vy = V(4);
 
     % create r (position vector for the planet)
     r = [x; y];
