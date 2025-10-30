@@ -16,8 +16,7 @@
 %   h_avg: the average step size
 %   num_evals: total number of calls made to rate_func_in during the integration
 
-function [t_list, X_list, h_avg, total_evals] = explicit_RK_fixed_step_integration ...
-                            (rate_func_in, tspan, X0, h_ref, BT_struct)
+function [t_list, X_list, h_avg, total_evals] = explicit_RK_fixed_step_integration(rate_func_in, tspan, X0, h_ref, BT_struct)
 
     % ORION CODE: same as ours, amybe more computationally efficient
     % N = ceil(tspan(2)-tspan(1))/h_ref;
