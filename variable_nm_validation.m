@@ -1,22 +1,10 @@
-%%
-
-% choose three or more different explicit Runge-Kutta methods to test
-
-% Ideally, there will be a few different orders of truncation error that 
-% are represented from among the methods that you chose.
-
-% Perform a set of experiments comparing the behavior of the different method
-
-%  plot comparing the approximate solution for each method to the true solution for a given time step-length.
-% • A log log plot showing how the local truncation error (and the difference |X(t + h) − X(t)|) scales with the
-% step-size, h (with fit-lines).
-% • A log log plot showing how the global truncation error scales with the step-size, h (with fit-lines).
-% • A log log plot showing how the global truncation error scales with num evals (with fit-lines).
+% validate the varible step guy
 
 %% Initialize several Butcher Tableaus 
 
 method_list = ["Dormand Prince", "Fehlberg", "Heun Euler", "Fehlberg RK1", "Bogacki"];
-selection = logical([0, 1, 1, 1, 0]);
+p_method = [5, 5, 2, 2, 3 ]; 
+selection = logical([0, 1, 0, 1, 0]);
 selected_methods = method_list(selection); 
 
 num_methods = sum(selection);
@@ -48,6 +36,9 @@ clf; h_ref = 0.001; tspan = [0, 3];
 t_range = linspace(tspan(1), tspan(2), ceil(diff(tspan)/h_ref)+1);
 h = diff([t_range(1), t_range(2)]);
 
+p_vals = p_method(selection);
+err_desired = 1e-4;
+
 % compute true soln
 V_list = compute_planetary_motion(t_range, V0, orbit_params);
 
@@ -60,9 +51,12 @@ for j = 1:num_methods
 
     subplot(num_methods, 1, j)
 
+    % [t_list, X_list, h_avg, num_evals] =
+    % explicit_RK_variable_step_integration(rate_func_in, tspan, X0, h_ref, BT_struct, p, error_desired)
+
     % solve with numerical method
-    [t_list, X_list, h_avg, num_evals] = explicit_RK_fixed_step_integration ...
-                            (my_rate, tspan, V0, h_ref, BT_list{j});
+    [t_list, X_list, h_avg, ~] = explicit_RK_variable_step_integration ...
+                            (my_rate, tspan, V0, h_ref, BT_list{j}, p_vals(j), err_desired);
 
     % plot numerical
     method_name = selected_methods(j);
@@ -73,7 +67,7 @@ for j = 1:num_methods
     plot(t_range, V_list(:,1), "--", LineWidth=2, DisplayName="True soln"); 
 
     % label graph
-    title("True Soln vs. " + method_name + " Approximation")
+    title("True Soln vs. " + method_name + " Approximation (h_avg=" + num2str(h_avg) + ")")
     xlabel("Time"); ylabel("X(t)"); ylim([5, 8.5])
     legend()
 
@@ -81,70 +75,6 @@ end
 
 % title entire plot
 sgtitle("Comparison of Runge-Kutta methods (\Deltat=" + num2str(h) + ") to True Soln")
-
-
-
-%% Local truncation error
-
-% set h range
-h_len = 100; t_ref = 0.331;
-h_range = logspace(-5, 1, h_len);
-
-% called above, here for reference
-% my_rate = @(t_in, V_in) gravity_rate_func(t_in, V_in, orbit_params);
-X0 = compute_planetary_motion(t_ref, V0, orbit_params);
-
-% compute |X(t + h) − X(t)|
-ref_X_list = zeros(h_len, 1);
-for i = 1:h_len
-
-    t_vals = [t_ref, t_ref + h_range(i)];
-    V_list = compute_planetary_motion(t_vals, V0, orbit_params);
-    ref_X_list(i) = abs(diff(V_list(:,1)));
-
-end
-
-
-% for each method compute error
-figure(2); hold on; 
-for j = 1:num_methods
-
-    % get local truncation error for jth method
-    [tlist, Xlist] = get_local_tr_err(my_rate, X0, t_ref, h_range, BT_list{j});
-
-    % plot results
-    method_name = selected_methods(j);
-    plot(tlist, Xlist, ".", DisplayName=method_name)
-
-end
-
-% label plot
-title("Local Truncation Error for RK Methods")
-xlabel("Step size"); ylabel("Error"); ylim([5, 8.5])
-legend()
-
-
-
-%% Helper function to get local trunctation error list
-
-function err_list = get_local_tr_err(rate_fcn, X0, t_ref, h_range, BT_struct)
-
-    % make container
-    err_list = zeros(length(h_range), 1);
-
-    for i = 1:length(h_range)
-
-        % compute val at next step
-        t = t_ref + h_range(i);
-        [X_approx, ~, ~] = explicit_RK_step_embedded(rate_fcn, t, X0, h_range(i), BT_struct);
-        X_exact = compute_planetary_motion(t, V0, orbit_params);
-        
-        % store error
-        err_list(i) = abs(X_exact - X_approx);
-    end
-
-end
-
 
 %% Helper function that constructs Butcher Tableaus
 
