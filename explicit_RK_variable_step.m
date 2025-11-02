@@ -5,7 +5,7 @@
 %t: the value of time at the current step
 %XA: the value of X(t)
 %h: the time increment for a single step i.e. delta_t = t_{n+1} - t_{n}
-%BT_struct: a struct that contains the Butcher tableau
+% BT_struct: a struct that contains the Butcher tableau
 % BT_struct.A: matrix of a_{ij} values
 % BT_struct.B: vector of b_i values
 % BT_struct.C: vector of c_i values
@@ -18,16 +18,16 @@
 %h_next: the time-step size at the next iteration
 %redo: False if the estimated error was less than error_desired
 % True if the estimated error was larger than error_desired
-function [XB, num_evals, h_next, redo] = explicit_RK_variable_step(rate_func_in,t,XA,h,BT_struct,p,error_desired)
+function [XB, num_evals, h_next, redo] = explicit_RK_variable_step ... 
+                    (rate_func_in, t, XA, h, BT_struct, p, error_desired)
     
     [XB1, XB2, num_evals] = explicit_RK_step_embedded(rate_func_in, t, XA, h, BT_struct);
 
     a = 3;
     CurrTruncErr = norm(XB1-XB2);
-    h_next = (min(0.9*((error_desired/CurrTruncErr)^(1/p)), a))*h;
+    h_next = ( min(0.9*((error_desired/CurrTruncErr)^(1/p)), a) )*h;
 
     redo = CurrTruncErr > error_desired;
     XB = XB1;
-
 
 end
