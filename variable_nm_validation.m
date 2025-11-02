@@ -2,9 +2,11 @@
 
 %% Initialize several Butcher Tableaus 
 
+clear; clc;
+
 method_list = ["Dormand Prince", "Fehlberg", "Heun Euler", "Fehlberg RK1", "Bogacki"];
-p_method = [5, 5, 2, 2, 3 ]; 
-selection = logical([0, 1, 0, 1, 0]);
+p_method = [5, 5, 2, 2, 3]; 
+selection = logical([1, 1, 0, 1, 0]);
 selected_methods = method_list(selection); 
 
 num_methods = sum(selection);
@@ -55,19 +57,20 @@ for j = 1:num_methods
     % explicit_RK_variable_step_integration(rate_func_in, tspan, X0, h_ref, BT_struct, p, error_desired)
 
     % solve with numerical method
-    [t_list, X_list, h_avg, ~] = explicit_RK_variable_step_integration ...
+    [t_list, X_list, h_avg1, h_next_list, num_evals, step_fail_rate] = explicit_RK_variable_step_integration ...
                             (my_rate, tspan, V0, h_ref, BT_list{j}, p_vals(j), err_desired);
 
+    disp(h_next_list)
     % plot numerical
     method_name = selected_methods(j);
-    plot(t_list, X_list(:,1), ".", DisplayName=(method_name + " x")); hold on;
+    plot(t_list, X_list(:,1), "o", DisplayName=(method_name + " x")); hold on;
     % plot(t_list, X_list(:,2), ".-", DisplayName=(method_name + " y")); 
 
     % plot "true" solution
     plot(t_range, V_list(:,1), "--", LineWidth=2, DisplayName="True soln"); 
 
     % label graph
-    title("True Soln vs. " + method_name + " Approximation (h_avg=" + num2str(h_avg) + ")")
+    title("True Soln vs. " + method_name + " Approximation (h_{avg}=" + num2str(h_avg1) + ")")
     xlabel("Time"); ylabel("X(t)"); ylim([5, 8.5])
     legend()
 

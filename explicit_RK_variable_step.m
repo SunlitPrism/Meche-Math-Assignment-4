@@ -19,29 +19,15 @@
 %redo: False if the estimated error was less than error_desired
 % True if the estimated error was larger than error_desired
 function [XB, num_evals, h_next, redo] = explicit_RK_variable_step(rate_func_in,t,XA,h,BT_struct,p,error_desired)
-    num_evals = 0;
-    K = zeros(length(XA), length(BT_struct.B));
-    alpha = 5; %Range of [1.5,10] suggested
+    
+    [XB1, XB2, num_evals] = explicit_RK_step_embedded(rate_func_in, t, XA, h, BT_struct);
 
-    for n = 1:length(BT_struct.B)
-        t_temp = t + BT_struct.C(n)*h;
-        X_temp = XA + h*(K*BT_struct.A(n,:)')';
-        K(:, n) = rate_func_in(t_temp, X_temp);
-        num_evals = num_evals+1;
-    end
-        
-        XB1 = XA + h*(K*BT_struct.B(1,:)')';
-        XB2 = XA + h*(K*BT_struct.B(2,:)')';
-        XB = [XB1;XB2];
+    a = 3;
+    CurrTruncErr = norm(XB1-XB2);
+    h_next = (min(0.9*((error_desired/CurrTruncErr)^(1/p)), a))*h;
 
-        CurrTruncErr = norm(XB1-XB2);
-        h_next = (min(0.9*((error_desired/CurrTruncErr)^(1/p)),alpha))*h;
+    redo = CurrTruncErr > error_desired;
+    XB = XB1;
 
-    if CurrTruncErr > error_desired
-        redo = TRUE;
-    elseif CurrTruncErr < error_desired
-        redo = FALSE;
-    else
-       disp("Error: Redo is not TRUE nor FALSE") 
-    end
+
 end
