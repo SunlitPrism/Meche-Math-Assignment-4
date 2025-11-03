@@ -23,13 +23,17 @@ function [XB1, XB2, num_evals] = explicit_RK_step_embedded(rate_func_in, t, XA, 
     K = zeros(length(XA), length(BT_struct.B));
 
     for n = 1:length(BT_struct.B)
+        
+        % calc and store parameters according to the RK eqns
         t_temp = t + BT_struct.C(n)*h;
         X_temp = XA + h*(K*BT_struct.A(n,:)')';
         K(:, n) = rate_func_in(t_temp, X_temp);
 
+        % increment counter
         num_evals = num_evals+1;
     end
 
+    % compute output, one for each B row of the BT
     XB1 = XA + h*(K*BT_struct.B(1,:)');
     XB2 = XA + h*(K*BT_struct.B(2,:)');
 

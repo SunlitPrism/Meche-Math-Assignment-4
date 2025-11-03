@@ -7,7 +7,7 @@ clear; clc;
 method_list = ["Dormand Prince", "Fehlberg", "Heun Euler", "Fehlberg RK1", "Bogacki"];
 % heun euler unsure
 p_method = [5,4; 5,4; 2,1; 2,1; 3,2;]'; 
-selection = logical([1, 1, 0, 0, 0]);
+selection = logical([0, 1, 0, 0, 1]);
 selected_methods = method_list(selection); 
 
 num_methods = sum(selection);
@@ -35,7 +35,7 @@ V0 = [x0, y0, dxdt0, dydt0];
 %% Compare approx. soln to true soln for various methods
 % construct a subplot for each method 
 
-clf; h_ref = 0.01; tspan = [0, 2]; 
+clf; h_ref = 0.001; tspan = [0, 4]; 
 t_range = linspace(tspan(1), tspan(2), ceil(diff(tspan)/h_ref)+1);
 h = diff([t_range(1), t_range(2)]);
 
@@ -48,55 +48,30 @@ V_list = compute_planetary_motion(t_range, V0, orbit_params);
 % anonymize func to pass as input later
 my_rate = @(t_in, V_in) gravity_rate_func(t_in, V_in, orbit_params);
 
-j = 2;
-[~, X_list1, ~, ~, ~, ~] = explicit_RK_variable_step_integration ...
-                             (my_rate, tspan, V0, h_ref, BT_list{j}, p_vals(1,j), err_desired);
-
-[~, X_list2, ~, ~, ~] = explicit_RK_variable_step_integration2 ...
-                             (my_rate, tspan, V0, h_ref, BT_list{j}, p_vals(1,j), err_desired);
-
-X_list1-X_list2
-
-
 figure(1);
 for j = 1:num_methods
 
     subplot(num_methods, 1, j)
 
-    % [t_list, X_list, h_avg, num_evals] =
-    % explicit_RK_variable_step_integration(rate_func_in, tspan, X0, h_ref, BT_struct, p, error_desired)
+    % plot "true" solution
+    plot(t_range, V_list(:,1), "--", LineWidth=2, DisplayName="True soln"); hold on;
 
     % solve with numerical method
     % indexing p_vals to select first row of B (of the BT)
-    % [t_list, X_list, h_avg1, h_next_list, num_evals, step_fail_rate] = explicit_RK_variable_step_integration ...
-    %                         (my_rate, tspan, V0, h_ref, BT_list{j}, p_vals(1,j), err_desired);
-
-    % TESETING WITH FRIENDS SOLN
-    [t_list, X_list, h_avg1, step_failure_rate, num_evals] = explicit_RK_variable_step_integration ...
-                            (my_rate, tspan, V0, h_ref, BT_list{j}, p_vals(1,j), err_desired);
-
-
-
+    [t_list, X_list, h_avg, h_list, num_evals, step_fail_rate] = explicit_RK_variable_step_integration ...
+                             (my_rate, tspan, V0, h_ref, BT_list{j}, p_vals(1,j), err_desired);
 
     % plot numerical
     method_name = selected_methods(j);
-    % plot(t_list, X_list(:,1), "--", DisplayName=(method_name + " x")); hold on;
+    plot(t_list, X_list(1, :), ".", DisplayName=(method_name + " x"), MarkerSize=10);
     % plot(t_list, X_list(:,2), ".-", DisplayName=(method_name + " y"));
 
-    % debugging
-    plot(t_list, X_list(1, :), "--", DisplayName=(method_name + " x")); hold on;
-
-    % plot "true" solution
-    plot(t_range, V_list(:,1), "--", LineWidth=2, DisplayName="True soln"); 
-
     % label graph
-    title("True Soln vs. " + method_name + " Approximation (h_{avg}=" + num2str(h_avg1) + ")")
+    h_str = num2str(round(h_avg, 3));
+    title("True Soln vs. " + method_name + " Approximation (h_{avg}=" + h_str + ")")
     xlabel("Time"); ylabel("X(t)"); 
-    xlim([0, 1.5]); ylim([-10, 10])
+    % xlim([0, 1.5]); ylim([-10, 10])
     legend()
-
-    % debugging
-    h_avg1
 
 end
 

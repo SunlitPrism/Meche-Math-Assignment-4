@@ -15,68 +15,57 @@
 %X_list: the vector of X, [X0';X1';X2';...;(X_end)'] at each time step
 %h_avg: the average step size
 %num_evals: total number of calls made to rate_func_in during the integration
-function [t_list, X_list, h_avg, h_next_list, total_evals, step_fail_rate] = explicit_RK_variable_step_integration ...
+function [t_list, X_list, h_avg, h_list, total_evals, step_fail_rate] = explicit_RK_variable_step_integration ...
     (rate_func_in, tspan, X0, h_ref, BT_struct, p, error_desired)
-    
-    % N = ceil(diff(tspan)/h_ref)+1; % add 1 bc of inclusivity in linspace range
-    % 
-    % t_list = linspace(tspan(1), tspan(2), N);
-    % X_list = zeros(N, length(X0));
-    % 
-    % h_init = diff(t_list(1:2));  
-    % h_next = h_init; % set first value
-    % h_next_list = h_next; % store first value
+
+    t_list = [];
+    X_list = [];
+    h_list = [];
 
     % initialize lists
-    t_list = tspan(1);
-    X_list(1, :) = X0;
+    t_list(1) = tspan(1);
+    X_list(:, 1) = X0;
 
-    h_next = h_ref; % set first value
-    h_next_list = h_next; % store first value
+    h = h_ref; % set first value
+    h_list(1) = h; % store first value
 
     % initialize counters
     total_evals = 0; 
     failed_step = 0;
     all_step = 0;
+    i = 1;
 
     while t_list(end) < tspan(2)
 
-        % select t value
-        t = t_list(end);
-
-        % find x_(i+1), update x_i (XA here)
+        % find x_(t + h)
         [XB, num_evals, h_next, redo] = explicit_RK_variable_step ... 
-                        (rate_func_in, t+h_next, X_list(end,:), h_next, BT_struct, p, error_desired);
+                        (rate_func_in, t_list(i), X_list(:, i), h, BT_struct, p, error_desired);
 
         % update counters
         all_step = all_step+1;
         total_evals = total_evals + num_evals;
         
-        % reocmpute if error is too large
-        while redo == true
+        if redo == false
 
-            h_next_list(end) = h_next;
+            % update and store vals
+            X_list(:, i+1) = XB; % storing just XB1 
+            t_list(i+1) = t_list(i) + h;
+            
+            h = h_next;
+            h_list(i+1) = h;
+            
+            % increment step
+            i = i+1;
+        else
 
-            % find x_(i+1), update x_i (XA here)
-            [XB, num_evals, h_next, redo] = explicit_RK_variable_step ... 
-                        (rate_func_in, t+h_next, X_list(end,:), h_next, BT_struct, p, error_desired);
-
-
-            % update counters
-            total_evals = total_evals + num_evals;
-            failed_step = failed_step+1;
-            all_step = all_step+1;
+            h = h_next; % update h
+            failed_step = failed_step + 1; % update counter
 
         end
-        
-        % update and store vals
-        h_next_list(end+1) = h_next;
-        X_list(end+1, :) = XB(1,:); % storing just XB1 
-
     end
 
     % compute step failure rate and the average step size
     step_fail_rate = failed_step/all_step;
-    h_avg = mean(h_next_list);
+    h_avg = mean(h_list);
 
 end
