@@ -29,47 +29,22 @@ BT = get_BT("Fehlberg");
 
 %%
 
-p = 6; n = 10;
+p = 6; n = 50;
 
-tspan = [1, 3]; h_ref = 0.1;
-h_des = logspace(-5, 2, n);
-err_des = logspace(-2, 2, n);
+tspan = [1, 3]; h_ref = logspace(0.01,1,n);
+hav_all = [];
+fail_all = [];
 
-% [h_avg, fcn_evals]
-var_nums = zeros(n, 2);
-var_g_err = zeros(4, n);
-fixed_nums = zeros(n, 2);
-fixed_g_err = zeros(4, n);
-
-
-
-% % fixed step 
-% for i = 1:n
-% 
-%     [~, X_list, h_avg, total_evals] = explicit_RK_fixed_step_integration(my_rate, tspan, V0, h_des(i), BT);
-% 
-%     X_final_exact = compute_planetary_motion(tspan(2), V0, orbit_params);
-%     g_error = norm(X_list(:, end) - X_final_exact);
-% 
-%     % store output
-%     fixed_nums(i, :) = [h_avg, total_evals];
-%     fixed_g_err(:, i) = g_error;
-% end
-
-
+err_des = 0.01;
 
 % variable step
 for i = 1:n
 
-    [~, X_list, h_avg, total_evals, ~] = explicit_RK_variable_step_integration ...
-    (my_rate, tspan, V0, h_ref, BT, p, err_des(i));
-
-    X_final_exact = compute_planetary_motion(tspan(2), V0, orbit_params);
-    g_error = norm(X_list(:, end) - X_final_exact);
+    [~, ~, h_avg, ~, step_fail_rate] = explicit_RK_variable_step_integration(my_rate, tspan, V0, i, BT, p, err_des);
 
     % store output
-    var_nums(i, :) = [h_avg, total_evals];
-    var_g_err(:, i) = g_error;
+    hav_all(i, :) = h_avg;
+    fail_all(i, :) = step_fail_rate;
 end
 
 
@@ -80,24 +55,14 @@ end
 % plot results
 figure(1)
 % g_err vs avg step size
-loglog(var_nums(:,1), var_g_err(1,:), ".-", MarkerSize=15, DisplayName="Adaptive Step Size")
+semilogy(hav_all, fail_all, ".-", MarkerSize=15, DisplayName="Adaptive Step Size")
 hold on;
-loglog(fixed_nums(:,1), fixed_g_err(1,:), ".-", DisplayName="Fixed Step Size")
 
 % label plots
-title("Global Truncation Error vs Step Size")
-xlabel("Average Step Size"); ylabel("Error")
+title("Step Fail Rate vs Step Size")
+xlabel("Average Step Size"); ylabel("Failure Rate")
 legend()
 
-hold off; figure(2)
-loglog(var_nums(:,2), var_g_err(1,:), ".-", MarkerSize=15, DisplayName="Adaptive Step Size"); 
-hold on;
-loglog(fixed_nums(:,2), fixed_g_err(1,:), ".-", DisplayName="Fixed Step Size")
-
-% label plots
-title("Global Truncation Error vs Step Size")
-xlabel("Num. Function Evaluations"); ylabel("Error")
-legend()
 hold off;
 
 %%
