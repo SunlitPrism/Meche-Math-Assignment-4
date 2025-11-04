@@ -15,7 +15,7 @@
 %X_list: the vector of X, [X0';X1';X2';...;(X_end)'] at each time step
 %h_avg: the average step size
 %num_evals: total number of calls made to rate_func_in during the integration
-function [t_list, X_list, h_avg, h_list, total_evals, step_fail_rate] = explicit_RK_variable_step_integration ...
+function [t_list, X_list, h_avg, total_evals, step_fail_rate] = explicit_RK_variable_step_integration ...
     (rate_func_in, tspan, X0, h_ref, BT_struct, p, error_desired)
 
     t_list = [];
