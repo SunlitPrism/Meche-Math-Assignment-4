@@ -1,4 +1,4 @@
-%%
+%% graphs for write up (testing section)
 
 % choose three or more different explicit Runge-Kutta methods to test
 
@@ -13,12 +13,15 @@
 % • A log log plot showing how the global truncation error scales with the step-size, h (with fit-lines).
 % • A log log plot showing how the global truncation error scales with num evals (with fit-lines).
 
+%% Housekeeping
+
+clc; clear;
+
 %% Initialize several Butcher Tableaus 
-clear; clc;
 
 method_list = ["Dormand Prince", "Fehlberg", "Heun Euler", "Fehlberg RK1", "Bogacki"];
-p_method = [5,4; 5,4; 2,1; 2,1; 3,2;]'; 
-selection = logical([1, 0, 1, 1, 0]);
+selection = logical([1, 0, 1, 0, 1]);
+p_method = [5,4; 5,4; 2,1; 2,1; 3,2;]';
 selected_methods = method_list(selection); 
 
 num_methods = sum(selection);
@@ -32,92 +35,99 @@ end
 
 %% Initialize system
 
-% orbit params
-orbit_params = struct();
-orbit_params.m_sun = 1;
-orbit_params.m_planet = 1;
-orbit_params.G = 40;
+% first order system driven by a sinusoid
+rate_func01 = @(t, X) -5*X + 5*cos(t) - sin(t); V0 = 1;
+solution01 = @(t) cos(t);
 
-% initial state
-x0 = 8; y0 = 1; 
-dxdt0 = 0.1; dydt0=0;
-V0 = [x0, y0, dxdt0, dydt0];
+my_rate = rate_func01;
 
 %% Compare approx. soln to true soln for various methods
-% construct a subplot for each method 
+% construct a plot for each method 
 
-clf; h_ref = 0.001; tspan = [0, 3]; 
-t_range = linspace(tspan(1), tspan(2), ceil(diff(tspan)/h_ref)+1);
-h = diff([t_range(1), t_range(2)]);
+C = rgb2hex(orderedcolors("gem"));
 
-% compute true soln
-V_list = compute_planetary_motion(t_range, V0, orbit_params);
-
-% anonymize func to pass as input later
-my_rate = @(t_in, V_in) gravity_rate_func(t_in, V_in, orbit_params);
-
-
-figure(1);
-for j = 1:num_methods
-
-    subplot(num_methods, 1, j)
-
-    % solve with numerical method
-    [t_list, X_list, h_avg, num_evals] = explicit_RK_fixed_step_integration ...
-                            (my_rate, tspan, V0, h_ref, BT_list{j});
-
-    % plot numerical
-    method_name = selected_methods(j);
-    plot(t_list, X_list(1, :), ".", DisplayName=(method_name + " x")); hold on;
-    % plot(t_list, X_list(:,2), ".-", DisplayName=(method_name + " y")); 
-
-    % plot "true" solution
-    plot(t_range, V_list(:,1), "--", LineWidth=2, DisplayName="True soln"); 
-
-    % label graph
-    title("True Soln vs. " + method_name + " Approximation")
-    xlabel("Time"); ylabel("X(t)"); ylim([5, 8.5])
-    legend()
-
-end
-
-% title entire plot
-sgtitle("Comparison of Runge-Kutta methods (\Deltat=" + num2str(h) + ") to True Soln")
-
+% h_ref = 0.3; tspan = [0, 8]; 
+% t_range = linspace(tspan(1), tspan(2), ceil(diff(tspan)/0.1)+1);
+% 
+% % compute true soln
+% V_list = solution01(t_range);
+% my_rate = rate_func01;
+% % my_rate = @(t_in, V_in) gravity_rate_func(t_in, V_in, orbit_params);
+% 
+% for j = 1:num_methods
+% 
+%     % initialize figure
+%     figure(j);
+% 
+%     % solve with numerical method
+%     [t_list, X_list, h_avg, num_evals] = explicit_RK_fixed_step_integration ...
+%                             (my_rate, tspan, V0, h_ref, BT_list{j});
+% 
+%     % plot "true" solution
+%     plot(t_range, V_list, "-", Color=C(3), LineWidth=2, DisplayName="Analytical soln");
+%     hold on;
+% 
+%     % plot numerical
+%     method_name = selected_methods(j);
+%     plot(t_list, X_list, ".-", DisplayName=(method_name), Color=C(1), MarkerSize=12); 
+%     hold off;
+% 
+%     % label graph
+%     h_str = num2str(round(h_avg, 3));
+%     title(method_name + " Approx. (\Deltat=" + h_str + ") vs. Analytical Solution")
+%     xlabel("Time"); ylabel("X(t)"); ylim([-1.2, 1.2]);
+%     legend()
+% 
+% end
 
 
 %% Local truncation error
 
 % set h range
 h_len = 100; t_ref = 0.331;
-h_range = logspace(-5, 1, h_len);
+h_range = logspace(-6, 2, h_len);
 
 % called above, here for reference
 % my_rate = @(t_in, V_in) gravity_rate_func(t_in, V_in, orbit_params);
-X0 = compute_planetary_motion(t_ref, V0, orbit_params);
+X0 = solution01(t_ref);
 
 % compute |X(t + h) − X(t)|
 ref_X_list = zeros(h_len, length(X0));
-for i = 1:h_len
 
+% get ref line data
+for i = 1:h_len
     t_vals = [t_ref, t_ref + h_range(i)];
-    V_list = compute_planetary_motion(t_vals, V0, orbit_params);
+    V_list = solution01(t_vals);
     ref_X_list(i,:) = abs(diff(V_list));
 end
 
+filter_params.max_xval = 0.9;
 
-hold off; figure(2);
-loglog(h_range, ref_X_list(:,1), ".", DisplayName="Ref. line"); hold on;
+clf
+figure(1);
+% plot ref line 
+loglog(h_range, ref_X_list(:,1), ".", Color=C(1), DisplayName="Ref. line"); hold on;
+
+% calc & plot loglog regression fit line
+[p_ref, k_ref] = loglog_fit(h_range, ref_X_list, filter_params);
+plot_name = ['Ref. line p=', num2str(round(p_ref, 2))];
+loglog(h_range, k_ref*h_range.^p_ref, "-", Color=C(1), DisplayName=plot_name)
 
 % for each RK method compute local tr error
+
 for j = 1:num_methods
 
     % get local truncation error for jth method
-    Xlist = get_local_tr_err(my_rate, X0, V0, t_ref, h_range, BT_list{j}, orbit_params);
+    Xlist = get_local_tr_err(my_rate, solution01, X0, t_ref, h_range, BT_list{j}, 1);
 
     % plot results
     method_name = selected_methods(j);
-    loglog(h_range, Xlist(:,1), ".", DisplayName=method_name)
+    loglog(h_range, Xlist, ".", Color=C(j+1), DisplayName=method_name)
+
+    % plot loglog regression line
+    [p, k] = loglog_fit(h_range, Xlist, filter_params);
+    plot_name = ['Reg. line p=', num2str(round(p, 2))];
+    loglog(h_range, k*h_range.^p, "-", Color=C(j+1), DisplayName=plot_name)
 
 end
 
@@ -130,17 +140,28 @@ legend()
 
 %% Helper function to get local trunctation error list
 
-function err_list = get_local_tr_err(rate_fcn, X0, V0, t_ref, h_range, BT_struct, orbit_params)
+function err_list = get_local_tr_err(rate_fcn, solver, XA, t_ref, h_range, BT_struct, B_row)
 
     % make container
-    err_list = zeros(length(h_range), length(X0));
+    err_list = zeros(length(h_range), length(XA));
 
     for i = 1:length(h_range)
 
         % compute val at next step
         t = t_ref + h_range(i);
-        [X_approx, ~, ~] = explicit_RK_step_embedded(rate_fcn, t, X0, h_range(i), BT_struct);
-        X_exact = compute_planetary_motion(t, V0, orbit_params);
+
+        if B_row == 1
+            [X_approx, X1, ~] = RK_step_embedded2(rate_fcn, t, XA, h_range(i), BT_struct);
+        else
+            [X1, X_approx, ~] = RK_step_embedded2(rate_fcn, t, XA, h_range(i), BT_struct);
+        end
+
+        % debugging
+        if X_approx == X1
+            disp("XB1 = XB2")
+        end
+
+        X_exact = solver(t);
         
         % store error
         err_list(i, :) = abs(X_exact - X_approx);

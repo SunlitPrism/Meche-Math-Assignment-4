@@ -21,41 +21,15 @@ function [XB, num_evals] = explicit_RK_step(rate_func_in, t, XA, h, BT_struct)
     
     num_evals = 0;
     K = zeros(length(XA), length(BT_struct.B));
-    % i made ours wrong, its like 5x1 instead of 1x5 for example
 
     for n = 1:length(BT_struct.B)
         t_temp = t + BT_struct.C(n)*h;
-        X_temp = XA + h*(K*BT_struct.A(n,:)')';
+        X_temp = XA + h*(K*BT_struct.A(n,:)');
         K(:, n) = rate_func_in(t_temp, X_temp);
 
         num_evals = num_evals+1;
     end
 
-    XB = XA + h*(K*BT_struct.B')';
-
-    % % initialize values and containers
-    % s = size(BT_struct, 1);
-    % k_vals = zeros(s, length(XA));
-    % k_vals(1, :) = rate_func_in(t, XA); % dxdt at initial point
-    % 
-    % % compute all k values
-    % for i = 2:s
-    % 
-    %     % index the constants
-    %     ci = BT_struct.C(i);
-    %     a_vals = BT_struct.A(i, 1:i-1);
-    %     k_in = k_vals(1:i-1, :);
-    % 
-    %     % calc and store next k value
-    %     k_vals(i, :) = rate_func_in(t+ci, XA + a_vals.*k_in);
-    % 
-    % end
-    % 
-    % % calculate E(i=1, s) for b_i*k_i
-    % biki = BT_struct.B .* k_vals;
-    % 
-    % % compute next step
-    % XB = XA + h*biki;
-    % num_evals = s;
+    XB = XA + h*(K*BT_struct.B');
 
 end
